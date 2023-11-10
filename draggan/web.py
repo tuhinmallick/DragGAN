@@ -88,15 +88,13 @@ def on_drag(model, points, max_iters, state, size, mask, lr_box):
     else:
         mask = None
 
-    step = 0
-    for image, W, handle_points in drag_gan(W, model['G'],
+    for step, (image, W, handle_points) in enumerate(drag_gan(W, model['G'],
                                             handle_points, target_points, mask,
-                                            max_iters=max_iters, lr=lr_box):
+                                            max_iters=max_iters, lr=lr_box), start=1):
         points['handle'] = [p.cpu().numpy().astype('int') for p in handle_points]
         image = add_points_to_image(image, points, size=SIZE_TO_CLICK_SIZE[size])
 
         state['history'].append(image)
-        step += 1
         yield image, state, step
 
 
@@ -123,11 +121,7 @@ def on_change_model(selected, model):
     G = draggan.load_model(utils.get_path(selected), device=device)
     model = {'G': G}
     W = draggan.generate_W(
-        G,
-        seed=int(1),
-        device=device,
-        truncation_psi=0.8,
-        truncation_cutoff=8,
+        G, seed=1, device=device, truncation_psi=0.8, truncation_cutoff=8
     )
     img, _ = draggan.generate_image(W, G, device=device)
 
@@ -198,8 +192,7 @@ def on_mask_change(mask):
 
 
 def on_select_mask_tab(state):
-    img = to_image(state['sample'])
-    return img
+    return to_image(state['sample'])
 
 
 def main():
@@ -241,11 +234,7 @@ def main():
         G = draggan.load_model(utils.get_path(DEFAULT_CKPT), device=device)
         model = gr.State({'G': G})
         W = draggan.generate_W(
-            G,
-            seed=int(1),
-            device=device,
-            truncation_psi=0.8,
-            truncation_cutoff=8,
+            G, seed=1, device=device, truncation_psi=0.8, truncation_cutoff=8
         )
         img, F0 = draggan.generate_image(W, G, device=device)
 

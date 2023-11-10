@@ -94,10 +94,9 @@ def on_drag(model, points, max_iters, state, size, mask, lr_box):
     else:
         mask = None
 
-    step = 0
-    for sample2, latent, F, handle_points in drag_gan(model.g_ema, latent, noise, F,
+    for step, (sample2, latent, F, handle_points) in enumerate(drag_gan(model.g_ema, latent, noise, F,
                                                       handle_points, target_points, mask,
-                                                      max_iters=max_iters, lr=lr_box):
+                                                      max_iters=max_iters, lr=lr_box), start=1):
         image = to_image(sample2)
 
         state['F'] = F
@@ -107,7 +106,6 @@ def on_drag(model, points, max_iters, state, size, mask, lr_box):
         image = add_points_to_image(image, points, size=SIZE_TO_CLICK_SIZE[size])
 
         state['history'].append(image)
-        step += 1
         yield image, state, step
 
 
@@ -200,8 +198,7 @@ def on_mask_change(mask):
 
 
 def on_select_mask_tab(state):
-    img = to_image(state['sample'])
-    return img
+    return to_image(state['sample'])
 
 
 def main():

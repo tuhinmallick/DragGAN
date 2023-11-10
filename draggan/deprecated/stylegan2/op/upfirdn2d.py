@@ -18,9 +18,7 @@ try:
         ],
     )
 except:
-    warnings.warn(
-        f"(This is not error) Switch to native implementation"
-    )
+    warnings.warn("(This is not error) Switch to native implementation")
 
     upfirdn2d_op = None
 
@@ -164,13 +162,11 @@ def upfirdn2d(input, kernel, up=1, down=1, pad=(0, 0)):
     if len(pad) == 2:
         pad = (pad[0], pad[1], pad[0], pad[1])
 
-    if input.device.type == "cpu":
-        out = _upfirdn2d_native(input, kernel, *up, *down, *pad)
-
-    else:
-        out = UpFirDn2d.apply(input, kernel, up, down, pad)
-
-    return out
+    return (
+        _upfirdn2d_native(input, kernel, *up, *down, *pad)
+        if input.device.type == "cpu"
+        else UpFirDn2d.apply(input, kernel, up, down, pad)
+    )
 
 
 def upfirdn2d_native(input, kernel, up=1, down=1, pad=(0, 0)):
@@ -183,9 +179,7 @@ def upfirdn2d_native(input, kernel, up=1, down=1, pad=(0, 0)):
     if len(pad) == 2:
         pad = (pad[0], pad[1], pad[0], pad[1])
 
-    out = _upfirdn2d_native(input, kernel, *up, *down, *pad)
-
-    return out
+    return _upfirdn2d_native(input, kernel, *up, *down, *pad)
 
 
 def _upfirdn2d_native(

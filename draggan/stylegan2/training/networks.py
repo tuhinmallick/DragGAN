@@ -516,10 +516,7 @@ class SynthesisNetwork(torch.nn.Module):
             block = getattr(self, f'b{res}')
             x, img = block(x, img, cur_ws, **block_kwargs)
             features.append(x)
-        if return_feature:
-            return img, features
-        else:
-            return img
+        return (img, features) if return_feature else img
 
     def extra_repr(self):
         return ' '.join([
@@ -567,10 +564,7 @@ class Generator(torch.nn.Module):
             img, feature = img
         if self.resize is not None:
             img = imresize(img, [self.resize, self.resize])
-        if return_feature:
-            return img, feature
-        else:
-            return img
+        return (img, feature) if return_feature else img
 
 
 def imresize(image, size):
@@ -819,9 +813,7 @@ class Discriminator(torch.nn.Module):
             block = getattr(self, f'b{res}')
             x, img = block(x, img, **block_kwargs)
 
-        cmap = None
-        if self.c_dim > 0:
-            cmap = self.mapping(None, c)
+        cmap = self.mapping(None, c) if self.c_dim > 0 else None
         x = self.b4(x, img, cmap)
         return x
 
