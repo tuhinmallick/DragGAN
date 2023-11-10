@@ -166,7 +166,7 @@ def create_circular_mask(
         A boolean tensor of shape [h, w] representing the circular mask.
     """
     if center is None:  # use the middle of the image
-        center = (int(h / 2), int(w / 2))
+        center = h // 2, w // 2
     if radius is None:  # use the smallest distance between the center and image walls
         radius = min(center[0], center[1], h - center[0], w - center[1])
 
@@ -174,8 +174,7 @@ def create_circular_mask(
     dist_from_center = np.sqrt((Y - center[0]) ** 2 + (X - center[1]) ** 2)
 
     mask = dist_from_center <= radius
-    mask = torch.from_numpy(mask).bool()
-    return mask
+    return torch.from_numpy(mask).bool()
 
 
 def create_square_mask(

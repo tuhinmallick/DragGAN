@@ -106,10 +106,8 @@ def inverse_image(
         ]
     )
 
-    imgs = []
     img = transform(image)
-    imgs.append(img)
-
+    imgs = [img]
     imgs = torch.stack(imgs, 0).to(device)
 
     with torch.no_grad():
@@ -192,10 +190,7 @@ def inverse_image(
 
     i = 0
 
-    noise_single = []
-    for noise in noises:
-        noise_single.append(noise[i: i + 1])
-
+    noise_single = [noise[i: i + 1] for noise in noises]
     result = {
         "latent": latent,
         "noise": noise_single,

@@ -62,7 +62,7 @@ def get_plugin(module_name, sources, **build_kwargs):
             compiler_bindir = _find_compiler_bindir()
             if compiler_bindir is None:
                 raise RuntimeError(f'Could not find MSVC/GCC/CLANG installation on this computer. Check _find_compiler_bindir() in "{__file__}".')
-            os.environ['PATH'] += ';' + compiler_bindir
+            os.environ['PATH'] += f';{compiler_bindir}'
 
         # Compile and load.
         verbose_build = (verbosity == 'full')
@@ -77,9 +77,15 @@ def get_plugin(module_name, sources, **build_kwargs):
         # a single directory (just for simplicity) and if the TORCH_EXTENSIONS_DIR
         # environment variable is set (we take this as a signal that the user
         # actually cares about this.)
-        source_dirs_set = set(os.path.dirname(source) for source in sources)
+        source_dirs_set = {os.path.dirname(source) for source in sources}
         if len(source_dirs_set) == 1 and ('TORCH_EXTENSIONS_DIR' in os.environ):
-            all_source_files = sorted(list(x for x in Path(list(source_dirs_set)[0]).iterdir() if x.is_file()))
+            all_source_files = sorted(
+                [
+                    x
+                    for x in Path(list(source_dirs_set)[0]).iterdir()
+                    if x.is_file()
+                ]
+            )
 
             # Compute a combined hash digest for all source files in the same
             # custom op directory (usually .cu, .cpp, .py and .h files).

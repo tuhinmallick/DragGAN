@@ -33,7 +33,7 @@ def load_model(
     Returns:
         The pretrained generator network.
     """
-    print('Loading networks from "%s"...' % network_pkl)
+    print(f'Loading networks from "{network_pkl}"...')
     with dnnlib.util.open_url(network_pkl) as f:
         chkpt = legacy.load_network_pkl(f, force_fp16=fp16)
     G = chkpt["G_ema"].to(device).eval()
@@ -167,16 +167,16 @@ def generate_image(
 
     # Labels.
     label = torch.zeros([1, G.c_dim], device=device)
-    if G.c_dim != 0:
-        if class_idx is None:
-            raise Exception(
-                "Must specify class label with --class when using a conditional network"
-            )
-        label[:, class_idx] = 1
-    else:
+    if G.c_dim == 0:
         if class_idx is not None:
             print("warn: --class=lbl ignored when running on an unconditional network")
 
+    elif class_idx is None:
+        raise Exception(
+            "Must specify class label with --class when using a conditional network"
+        )
+    else:
+        label[:, class_idx] = 1
     # Generate image
     img, features = forward_G(G, W, device)
 
